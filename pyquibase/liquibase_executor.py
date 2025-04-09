@@ -32,9 +32,7 @@ SUPPORTED_DATABASES = {
     "postgresql": {
         "url": "jdbc:postgresql://%s:%s/%s",
         "driver": "org.postgresql.Driver",
-        "db_connector": resource_filename(
-            __package__, "db-connectors/postgresql-42.3.2.jar"
-        ),
+        "db_connector": resource_filename(__package__, "db-connectors/postgresql-42.3.2.jar"),
         "command": LIQUIBASE_COMMAND,
     }
 }
@@ -47,9 +45,7 @@ class LiquibaseExecutor(object):
 
         self.config = config
         self.db = SUPPORTED_DATABASES[config["database"]]
-        self.liquibaseJar = resource_filename(
-            __package__, "liquibase/liquibase-core-4.25.0.jar"
-        )
+        self.liquibaseJar = resource_filename(__package__, "liquibase/liquibase-core-4.25.0.jar")
         self.logger = logging.getLogger(__name__)
 
     def execute(self, changeLogFilePath, *args):
@@ -87,15 +83,11 @@ class LiquibaseExecutor(object):
 
             # Replace the password value with asterisks
             output_liquibase_command = (
-                liquibase_command[: start_index + len("--password=")]
-                + "*********"
-                + liquibase_command[end_index:]
+                liquibase_command[: start_index + len("--password=")] + "*********" + liquibase_command[end_index:]
             )
 
             print(output_liquibase_command)
 
-        output = subprocess.check_output(
-            liquibase_command, stderr=subprocess.STDOUT, shell=True
-        )
+        output = subprocess.check_output(liquibase_command, stderr=subprocess.STDOUT, shell=True)
 
         return output.decode("UTF-8")

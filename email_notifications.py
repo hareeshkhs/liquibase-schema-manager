@@ -3,6 +3,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import config
 
+
 def send_email_notification(
     status: str,
     postgres_host: str,
@@ -11,10 +12,10 @@ def send_email_notification(
     change_log_file: str,
     failed_changeset: str,
     caused_by: str,
-    traceback_str: str
+    traceback_str: str,
 ):
     subject = f"[{status}] Schema Deployment - Tag {version}"
-    
+
     body = f"""
     <html>
     <body>
@@ -31,10 +32,10 @@ def send_email_notification(
     """
 
     msg = MIMEMultipart()
-    msg['From'] = config.EMAIL_USER
-    msg['To'] = ", ".join(config.EMAIL_RECIPIENTS)
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'html'))
+    msg["From"] = config.EMAIL_USER
+    msg["To"] = ", ".join(config.EMAIL_RECIPIENTS)
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "html"))
 
     try:
         with smtplib.SMTP(config.EMAIL_HOST, config.EMAIL_PORT) as server:

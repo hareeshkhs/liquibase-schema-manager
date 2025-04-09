@@ -4,6 +4,7 @@ import pg8000 as pg
 
 import config
 
+
 def get_liquibase_connector(db_type: str, change_log_file: str = ""):
     """
     return the liquibase connector object based on db_type
@@ -40,4 +41,3 @@ def get_db_connector(db_type: str):
             database=config.POSTGRES_DB,
         )
     return None
-

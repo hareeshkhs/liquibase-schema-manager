@@ -41,9 +41,7 @@ class Pyquibase(object):
         return output
 
     @classmethod
-    def postgresql(
-        cls, host, port, db_name, username, password, change_log_file, log_level="info"
-    ):
+    def postgresql(cls, host, port, db_name, username, password, change_log_file, log_level="info"):
         config = {
             "host": host,
             "port": port,
@@ -64,7 +62,5 @@ class Pyquibase(object):
 
     def rollback_to_datetime(self, datetime):
         self.logger.info("Rolling back to %s on %s/%s/%s" % datetime)
-        output = self.liquibase.execute(
-            self.change_log_file, "rollbackToDate", datetime
-        )
+        output = self.liquibase.execute(self.change_log_file, "rollbackToDate", datetime)
         self.logger.info(output)
