@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install flake8
         run: pip install flake8
@@ -41,7 +41,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install dependencies
         run: |
@@ -76,10 +76,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract version
+      - name: Extract version from Python
         id: get_version
         run: |
-          VERSION=$(grep '__version__' version.py | cut -d '"' -f2)
+          VERSION=$(python -c "import version; print(version.__version__)")
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build Docker Image
@@ -91,4 +91,6 @@ jobs:
           docker push ghcr.io/${{ github.repository }}:${{ steps.get_version.outputs.VERSION }}
 
       - name: Output Success
-        run: echo "✅ Image successfully pushed with tag: ${{ steps.get_version.outputs.VERSION }}"
+        run: |
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          echo "✅ Image successfully pushed with tag: $VERSION"
