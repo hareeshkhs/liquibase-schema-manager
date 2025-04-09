@@ -12,32 +12,32 @@ on:
 
 jobs:
   lint:
-  name: 🧹 Lint Check
-  runs-on: ubuntu-latest
+    name: 🧹 Lint Check
+    runs-on: ubuntu-latest
 
-  steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Install linting tools
-      run: |
-        pip install black flake8
+      - name: Install linting tools
+        run: |
+          pip install black flake8
 
-    - name: Run Black Check (style)
-      run: |
-        black --check --line-length 120 . --exclude '/(\.venv|\.git|__pycache__)/'
+      - name: Run Black Check (style)
+        run: |
+          black --check --line-length 120 . --exclude '/(\.venv|\.git|__pycache__)/'
 
-    - name: Run Flake8 Check (lint rules)
-      run: |
-        flake8 . --exclude=venv,__pycache__,.git --max-line-length=120
+      - name: Run Flake8 Check (lint rules)
+        run: |
+          flake8 . --exclude=venv,__pycache__,.git --max-line-length=120
 
-  # Optional: Only run on pull requests or feature branches
-  if: github.event_name == 'pull_request' || startsWith(github.ref, 'refs/heads/feature/')
+    # Optional: Only run on pull requests or feature branches
+    if: github.event_name == 'pull_request' || startsWith(github.ref, 'refs/heads/feature/')
 
   # test:
   #   name: ✅ Run Unit Tests
