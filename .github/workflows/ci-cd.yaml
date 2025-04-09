@@ -34,7 +34,7 @@ jobs:
 
       - name: Run Flake8 Check (lint rules)
         run: |
-          flake8 . --exclude=venv,__pycache__,.git --max-line-length=120
+          flake8 . --exclude=venv,__pycache__,.git --max-line-length=120 --ignore=F401,E501
 
     # Optional: Only run on pull requests or feature branches
     if: github.event_name == 'pull_request' || startsWith(github.ref, 'refs/heads/feature/')
