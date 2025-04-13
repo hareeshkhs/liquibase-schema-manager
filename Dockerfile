@@ -16,7 +16,6 @@ ENV PATH=/home/liquibase-schema-manager/.local/bin:$PATH
 ARG ARTIFACTORY_USERNAME
 ARG ARTIFACTORY_PASSWORD
 ARG TAG
-ARG CI_PRDTAG
 
 USER liquibase-schema-manager
 COPY requirements.txt .
@@ -28,6 +27,5 @@ WORKDIR /home/liquibase-schema-manager
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
-ENV TAG $TAG
-ENV CI_PRDTAG $CI_PRDTAG
+ENV TAG=$TAG
 CMD ["sh", "-c", "python3 main.py"]
