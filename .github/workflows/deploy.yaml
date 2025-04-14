@@ -46,11 +46,15 @@ jobs:
             sudo docker pull $IMAGE
 
             echo "Running container $CONTAINER_NAME..."
-            sudo docker run -it \
+            sudo docker run -d \
               --name $CONTAINER_NAME \
               -e DB_HOST=${{ secrets.EC2_HOST }} \
               -e DB_NAME=${{ github.event.inputs.db_name }} \
               -e DB_USER=${{ secrets.DB_USER }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -e EMAIL_APP_PASSCODE=${{ secrets.EMAIL_APP_PASSCODE }} \
-              $IMAGE /bin/sh  # Override CMD to get shell access
+              $IMAGE
+
+            # Check if the container started successfully
+            sudo docker ps -a | grep $CONTAINER_NAME
+            sudo docker logs $CONTAINER_NAME
