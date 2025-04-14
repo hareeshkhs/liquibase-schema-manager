@@ -1,0 +1,49 @@
+name: Deploy Docker Image to EC2
+
+on:
+  workflow_dispatch:
+    inputs:
+      db_name:
+        description: "Database Name"
+        required: true
+      image_tag:
+        description: "Image Tag (e.g., latest, v1.2.3)"
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "Logging into GitHub Container Registry (GHCR)..."
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            IMAGE="ghcr.io/${{ github.repository }}:${{ github.event.inputs.image_tag }}"
+            CONTAINER_NAME="schema-manager"
+
+            echo "Removing existing container if exists..."
+            docker rm -f $CONTAINER_NAME || true
+
+            echo "Pulling image $IMAGE..."
+            docker pull $IMAGE
+
+            echo "Running container $CONTAINER_NAME..."
+            docker run -d \
+              --name $CONTAINER_NAME \
+              -e DB_HOST=${{ github.event.inputs.db_host }} \
+              -e DB_NAME=${{ github.event.inputs.db_name }} \
+              -e DB_USER=${{ secrets.DB_USER }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e EMAIL_APP_PASSCODE=${{ secrets.EMAIL_APP_PASSCODE }} \
+              $IMAGE
