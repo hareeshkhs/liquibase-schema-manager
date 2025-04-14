@@ -30,24 +30,23 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y docker.io
             sudo systemctl start docker
-            sudo usermod -aG docker $USER
             echo "Docker version:"
-            docker --version
+            sudo docker --version
 
             echo "Logging into GitHub Container Registry (GHCR)..."
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "${{ secrets.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             IMAGE="ghcr.io/${{ github.repository }}:${{ github.event.inputs.image_tag }}"
             CONTAINER_NAME="schema-manager"
 
             echo "Removing existing container if exists..."
-            docker rm -f $CONTAINER_NAME || true
+            sudo docker rm -f $CONTAINER_NAME || true
 
             echo "Pulling image $IMAGE..."
-            docker pull $IMAGE
+            sudo docker pull $IMAGE
 
             echo "Running container $CONTAINER_NAME..."
-            docker run -d \
+            sudo docker run -d \
               --name $CONTAINER_NAME \
               -e DB_HOST=${{ github.event.inputs.db_host }} \
               -e DB_NAME=${{ github.event.inputs.db_name }} \
