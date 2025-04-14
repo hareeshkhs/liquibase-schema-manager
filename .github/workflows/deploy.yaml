@@ -46,11 +46,11 @@ jobs:
             sudo docker pull $IMAGE
 
             echo "Running container $CONTAINER_NAME..."
-            sudo docker run -d \
+            sudo docker run -it \
               --name $CONTAINER_NAME \
-              -e DB_HOST=${{ github.event.inputs.db_host }} \
+              -e DB_HOST=${{ secrets.EC2_HOST }} \
               -e DB_NAME=${{ github.event.inputs.db_name }} \
               -e DB_USER=${{ secrets.DB_USER }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -e EMAIL_APP_PASSCODE=${{ secrets.EMAIL_APP_PASSCODE }} \
-              $IMAGE
+              $IMAGE /bin/sh  # Override CMD to get shell access
