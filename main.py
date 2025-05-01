@@ -12,7 +12,7 @@ import traceback
 
 import config
 from connector import get_liquibase_connector, get_db_connector
-from version import __version__
+from calculate_version import __version__
 from email_notifications import send_email_notification
 
 
