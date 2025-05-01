@@ -27,7 +27,7 @@ jobs:
 
       - name: Pulling Docker Image from GHCR
         env:
-          IMAGE_NAME: ghcr.io/hareeshkumarkhs/liquibase-schema-manager
+          IMAGE_NAME: ghcr.io/hareeshkhs/liquibase-schema-manager
         run: |
           echo "Checking for image: $IMAGE_NAME:${{ inputs.image_tag }}"
           docker pull $IMAGE_NAME:${{ inputs.image_tag }}
