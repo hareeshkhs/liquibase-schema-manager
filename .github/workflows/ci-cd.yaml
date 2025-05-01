@@ -68,7 +68,7 @@ jobs:
     needs: [lint]
 
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
