@@ -75,6 +75,37 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Determine version bump type from commit message
+        id: bump_type
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "Commit message: $COMMIT_MSG"
+          if [[ "$COMMIT_MSG" == *"bump_minor"* ]]; then
+            echo "INCREMENT_KEY=minor" >> $GITHUB_OUTPUT
+          elif [[ "$COMMIT_MSG" == *"bump_major"* ]]; then
+            echo "INCREMENT_KEY=major" >> $GITHUB_OUTPUT
+          elif [[ "$COMMIT_MSG" == *"bump_prerelease"* ]]; then
+            echo "INCREMENT_KEY=prerelease" >> $GITHUB_OUTPUT
+          else
+            echo "INCREMENT_KEY=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Bump version
+        run: |
+          echo "Bumping version using: ${{ steps.bump_type.outputs.INCREMENT_KEY }}"
+          python bump_version.py ${{ steps.bump_type.outputs.INCREMENT_KEY }}
+
+      - name: Extract version from Python
+        id: get_version
+        run: |
+          VERSION=$(python -c "import version; print(version.__version__)")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -85,11 +116,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract version from Python
-        id: get_version
-        run: |
-          VERSION=$(python -c "import version; print(version.__version__)")
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+      # - name: Extract version from Python
+      #   id: get_version
+      #   run: |
+      #     VERSION=$(python -c "import version; print(version.__version__)")
+      #     echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build Docker Image
         run: |
