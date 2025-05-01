@@ -32,21 +32,6 @@ jobs:
           echo "Checking for image: $IMAGE_NAME:${{ inputs.image_tag }}"
           docker pull $IMAGE_NAME:${{ inputs.image_tag }}
 
-      - name: Fetch Jenkins Crumb
-        id: get-crumb
-        env:
-          JENKINS_URL: ${{ secrets.JENKINS_URL }}
-          JENKINS_USER: ${{ secrets.JENKINS_USER }}
-          JENKINS_API_TOKEN: ${{ secrets.JENKINS_API_TOKEN }}
-        run: |
-          echo "Fetching Jenkins crumb..."
-          crumb_json=$(curl -s --user "$JENKINS_USER:$JENKINS_API_TOKEN" "$JENKINS_URL/crumbIssuer/api/json")
-          echo "Crumb JSON: $crumb_json"
-          crumb=$(echo "$crumb_json" | jq -r '.crumb')
-          crumb_field=$(echo "$crumb_json" | jq -r '.crumbRequestField')
-          echo "crumb=$crumb" >> $GITHUB_OUTPUT
-          echo "crumb_field=$crumb_field" >> $GITHUB_OUTPUT
-
       - name: Trigger Jenkins Job
         env:
           JENKINS_URL: ${{ secrets.JENKINS_URL }}
@@ -60,7 +45,6 @@ jobs:
 
           curl -X POST "$JENKINS_URL/job/$JENKINS_JOB/buildWithParameters" \
             --user "$JENKINS_USER:$JENKINS_API_TOKEN" \
-            -H "$CRUMB_FIELD: $CRUMB" \
             --data-urlencode "TAG=${{ inputs.image_tag }}" \
             --data-urlencode "POSTGRES_DB=${{ inputs.db_name }}" \
             --data-urlencode "AVAILABLE_SCHEMAS=${{ inputs.available_schemas }}" \
