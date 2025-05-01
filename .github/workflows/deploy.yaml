@@ -1,60 +1,65 @@
-name: Deploy Docker Image to EC2
+name: Deploy Schema via Jenkins
 
 on:
   workflow_dispatch:
     inputs:
-      db_name:
-        description: "Database Name"
-        required: true
       image_tag:
-        description: "Image Tag (e.g., latest, v1.2.3)"
+        description: "Docker image tag (e.g., v1.0.0)"
+        required: true
+      db_name:
+        description: "PostgreSQL database name"
+        required: true
+      available_schemas:
+        description: "Available schemas to deploy (comma-separated)"
         required: true
 
 jobs:
-  deploy:
-    name: Deploy to EC2
+  trigger-jenkins-deployment:
+    name: Trigger Jenkins Job
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            echo "Installing Docker..."
-            sudo apt-get update
-            sudo apt-get install -y docker.io
-            sudo systemctl start docker
-            echo "Docker version:"
-            sudo docker --version
+      - name: Fetch Jenkins Crumb
+        id: get-crumb
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+          JENKINS_USER: ${{ secrets.JENKINS_USER }}
+          JENKINS_API_TOKEN: ${{ secrets.JENKINS_API_TOKEN }}
+        run: |
+          echo "Fetching Jenkins crumb..."
+          crumb_json=$(curl -s --user "$JENKINS_USER:$JENKINS_API_TOKEN" "$JENKINS_URL/crumbIssuer/api/json")
+          echo "Crumb JSON: $crumb_json"
+          crumb=$(echo "$crumb_json" | jq -r '.crumb')
+          crumb_field=$(echo "$crumb_json" | jq -r '.crumbRequestField')
+          echo "crumb=$crumb" >> $GITHUB_OUTPUT
+          echo "crumb_field=$crumb_field" >> $GITHUB_OUTPUT
 
-            echo "Logging into GitHub Container Registry (GHCR)..."
-            echo "${{ secrets.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Trigger Jenkins Job
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+          JENKINS_JOB: liquibase-deploy-job
+          JENKINS_USER: ${{ secrets.JENKINS_USER }}
+          JENKINS_API_TOKEN: ${{ secrets.JENKINS_API_TOKEN }}
+          CRUMB: ${{ steps.get-crumb.outputs.crumb }}
+          CRUMB_FIELD: ${{ steps.get-crumb.outputs.crumb_field }}
+        run: |
+          echo "Triggering Jenkins job for TAG=${{ inputs.image_tag }} on DB=${{ inputs.db_name }}"
 
-            IMAGE="ghcr.io/${{ github.repository }}:${{ github.event.inputs.image_tag }}"
-            CONTAINER_NAME="schema-manager"
+          curl -X POST "$JENKINS_URL/job/$JENKINS_JOB/buildWithParameters" \
+            --user "$JENKINS_USER:$JENKINS_API_TOKEN" \
+            -H "$CRUMB_FIELD: $CRUMB" \
+            --data-urlencode "TAG=${{ inputs.image_tag }}" \
+            --data-urlencode "POSTGRES_DB=${{ inputs.db_name }}" \
+            --data-urlencode "AVAILABLE_SCHEMAS=${{ inputs.available_schemas }}" \
+            --data-urlencode "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" \
+            --data-urlencode "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" \
+            --data-urlencode "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" \
+            --data-urlencode "EMAIL_APP_PASSCODE=${{ secrets.EMAIL_APP_PASSCODE }}" \
+            --data-urlencode "CONTAINER_NAME=schema-manager" \
+            --fail
 
-            echo "Removing existing container if exists..."
-            sudo docker rm -f $CONTAINER_NAME || true
-
-            echo "Pulling image $IMAGE..."
-            sudo docker pull $IMAGE
-
-            echo "Running container $CONTAINER_NAME..."
-            sudo docker run -d \
-              --name $CONTAINER_NAME \
-              -e DB_HOST=${{ secrets.EC2_HOST }} \
-              -e DB_NAME=${{ github.event.inputs.db_name }} \
-              -e DB_USER=${{ secrets.DB_USER }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -e EMAIL_APP_PASSCODE=${{ secrets.EMAIL_APP_PASSCODE }} \
-              $IMAGE
-
-            # Check if the container started successfully
-            sudo docker ps -a | grep $CONTAINER_NAME
-            sudo docker logs $CONTAINER_NAME
+      - name: ✅ Success Message
+        run: echo "Jenkins job triggered successfully for image_tag=${{ inputs.image_tag }} and db=${{ inputs.db_name }}"
