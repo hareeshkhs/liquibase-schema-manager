@@ -107,7 +107,7 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           git add version.py
           git commit -m "chore: bump version [skip ci]" || echo "No changes to commit"
-          git push
+          git push origin HEAD:${GITHUB_REF#refs/heads/}
 
       - name: Extract version from Python
         id: get_version
