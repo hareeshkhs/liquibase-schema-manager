@@ -68,7 +68,7 @@ jobs:
     needs: [lint]
 
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
@@ -83,7 +83,7 @@ jobs:
       - name: Determine version bump type from commit message
         id: bump_type
         run: |
-          COMMIT_MSG=$(git log -1 --pretty=%B)
+          COMMIT_MSG=$(git log --no-merges -1 --pretty=%B)
           echo "Commit message: $COMMIT_MSG"
           if [[ "$COMMIT_MSG" == *"bump_minor"* ]]; then
             echo "INCREMENT_KEY=minor" >> $GITHUB_OUTPUT
@@ -99,6 +99,16 @@ jobs:
         run: |
           echo "Bumping version using: ${{ steps.bump_type.outputs.INCREMENT_KEY }}"
           python bump_version.py ${{ steps.bump_type.outputs.INCREMENT_KEY }}
+
+      - name: Commit and push updated version.py
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git add version.py
+          git commit -m "chore: bump version [skip ci]" || echo "No changes to commit"
+          git pull origin ${{ github.head_ref }} --rebase
+          git push origin HEAD:${{ github.head_ref }}
 
       - name: Extract version from Python
         id: get_version
