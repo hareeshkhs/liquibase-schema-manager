@@ -12,6 +12,7 @@ def read_version():
     else:
         raise ValueError("Unable to extract version from version.py")
 
+
 def bump_version(version, part="patch"):
     listitems = version.replace("v", "").split(".")
     major, minor, patch = [None for i in range(3)]
@@ -42,6 +43,7 @@ def bump_version(version, part="patch"):
     else:
         raise ValueError(f"Invalid version part: {part}")
     return f"{major}.{minor}.{patch}"
+
 
 def update_version_py(new_version):
     with open("version.py", "r") as file:
