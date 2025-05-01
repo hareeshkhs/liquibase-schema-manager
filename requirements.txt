@@ -1,4 +1,4 @@
-setuptools==71.0.1
-pg8000==1.21.0
-python-dotenv==1.0.1
+setuptools==78.1.0
+pg8000==1.31.2
+python-dotenv==1.1.0
 requests==2.32.3
