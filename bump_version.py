@@ -50,7 +50,7 @@ def update_version_py(new_version):
         content = file.read()
     updated_content = re.sub(
         r'__version__\s*=\s*["\']([^"\']+)["\']',
-        f'__version__ = "{new_version}"',
+        f'__version__ = "v{new_version}"',
         content,
     )
     with open("version.py", "w") as file:

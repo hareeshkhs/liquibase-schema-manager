@@ -83,7 +83,7 @@ jobs:
       - name: Determine version bump type from commit message
         id: bump_type
         run: |
-          COMMIT_MSG=$(git log -1 --pretty=%B)
+          COMMIT_MSG=$(git log --no-merges -1 --pretty=%B)
           echo "Commit message: $COMMIT_MSG"
           if [[ "$COMMIT_MSG" == *"bump_minor"* ]]; then
             echo "INCREMENT_KEY=minor" >> $GITHUB_OUTPUT
@@ -99,6 +99,14 @@ jobs:
         run: |
           echo "Bumping version using: ${{ steps.bump_type.outputs.INCREMENT_KEY }}"
           python bump_version.py ${{ steps.bump_type.outputs.INCREMENT_KEY }}
+
+      - name: Commit and push updated version.py
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version.py
+          git commit -m "chore: bump version [skip ci]" || echo "No changes to commit"
+          git push origin HEAD:${GITHUB_REF#refs/heads/}
 
       - name: Extract version from Python
         id: get_version
