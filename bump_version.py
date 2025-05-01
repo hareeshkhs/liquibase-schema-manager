@@ -42,7 +42,7 @@ def bump_version(version, part="patch"):
         patch = f"{str(patch)}.{str(prerelease)}"
     else:
         raise ValueError(f"Invalid version part: {part}")
-    return f"{major}.{minor}.{patch}"
+    return f"v{major}.{minor}.{patch}"
 
 
 def update_version_py(new_version):
@@ -50,7 +50,7 @@ def update_version_py(new_version):
         content = file.read()
     updated_content = re.sub(
         r'__version__\s*=\s*["\']([^"\']+)["\']',
-        f'__version__ = "v{new_version}"',
+        f'__version__ = "{new_version}"',
         content,
     )
     with open("version.py", "w") as file:
@@ -69,4 +69,4 @@ if __name__ == "__main__":
     new_version = bump_version(current_version, part)
     print(f"Bumped version: {new_version}")
     update_version_py(new_version)
-    os.environ["TAG"] = f"v{new_version}"
+    os.environ["TAG"] = f"{new_version}"
