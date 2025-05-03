@@ -8,6 +8,36 @@ A lightweight tool to manage schema changes and automate versioning for database
 ---
 
 ## 📁 Project Structure
+```
+liquibase-schema-manager/
+│
+├── .github/workflows/               # Github actions files
+│   ├── ci-cd.yaml                   # cicd job code for code version management, push image to Github Container registry
+│   └── deploy.yaml                  # action file to deploy a version into datastores
+│
+├── postgres/                        # Postgres datastore DDLs
+│   ├── core/                        # Core schema DDLs
+│   └── merchant_template/           # Merchant template schema DDLs
+│
+├── pyquibase/                       # Pyquibase module files
+│   ├── db-connectors/               # Datastores versions jar files. ex: postgres, snowflake, etc.
+│   └── liquibase/                   # Liquibase version jar file
+│   └── liquibase_executor.py        # Execute function utilized in pyquibase.py function
+│   └── pyquibase.py                 # Pyquibase Function code.py
+│
+├── .env                             # env variables
+├── .gitignore                       # Git ignore rules
+├── README.md                        # Project overview
+├── Dockerfile                       # Container configuration for deploying the application
+├── bump_version.py                  # Script to increment version numbers (major/minor/patch)
+├── calculate_version.py             # Logic for determining the current version
+├── config.py                        # configuration settings and constants
+├── connector.py                     # Handles connections to external services/databases
+├── email_notifications.py           # Email sending functionality and templates
+├── main.py                          # Entry point and primary application logic
+├── requirements.py                  # Manages project dependencies and requirements
+├── version.py                       # Current version info
+```
 ---
 
 ## Table of Contents
