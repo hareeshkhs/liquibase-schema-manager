@@ -52,15 +52,15 @@ liquibase-schema-manager/
 ## Table of Contents
 1. [Deploying Schema](#deploying-schema-with-docker)
 2. [Usage](#usage)
-   1. [Local development setup](#local-development-setup)
-   2. [Installing Requirements for Local Development](#installing-requirements-for-local-development)
-   3. [Configuring credentials](#configuring-credentials)
-   4. [Deploying a fresh schema](#deploying-a-fresh-schema-locally)
-   5. [Adding new migrations](#updatingchanging-the-schema)
-   6. [Upgrading the schema](#upgrading-the-schema)
-   7. [Adding a new schema](#adding-a-new-schema)
+   - [Local development setup](#local-development-setup)
+   - [Installing Requirements for Local Development](#installing-requirements-for-local-development)
+   - [Configuring credentials](#configuring-credentials)
+   - [Deploying a fresh schema](#deploying-a-fresh-schema-locally)
+   - [Adding new migrations](#updatingchanging-the-schema)
+   - [Upgrading the schema](#upgrading-the-schema)
+   - [Adding a new schema](#adding-a-new-schema)
 3. [Miscellaneous](#miscellaneous)
-    1. [Checking Schema Version](#checking-the-version-of-the-schema-on-a-database)
+   - [Checking Schema Version](#checking-the-version-of-the-schema-on-a-database)
 
 ## Deploying Schema With Docker
 - Set the Docker image
