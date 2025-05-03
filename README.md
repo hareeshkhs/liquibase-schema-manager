@@ -5,6 +5,15 @@ A lightweight tool to manage schema changes and automate versioning for database
 ---
 
 ## 🚀 Features
+
+- Supports schema management using Liquibase for multiple databases.
+- Currently Supports PostgreSQL. (Future datastores release - Snowflake)
+- Customised liquibase module as pyquibase to encapsulate liquibase setup, supports easy version upgrades.
+- Automatically bumps semantic versions (`major`, `minor`, `patch`, `prerelease`) based on commit messages
+- Builds and pushes Docker images to GitHub Container Registry (GHCR)
+- Uses GitHub Actions to lint, test, version, and deploy
+- Supports email notifications for deployment status, logs, trace, and database high-level details.
+
 ---
 
 ## 📁 Project Structure
@@ -78,7 +87,7 @@ SELECT tag FROM db_logs.databasechangelog ORDER BY dateexecuted DESC LIMIT 1;
 ## Usage
 
 ### Local development setup
-- Clone the remote reposity
+- Clone the remote repository
 ```
 git clone https://github.com/hareeshkhs/liquibase-schema-manager.git
 ```
@@ -105,7 +114,7 @@ pip install -r requirements.txt
 - Schema Manager retrieves config from environment variables or from a [.env](.env) file
 - Required environment variables:
 ```
-AVAILABLE_SCHEMAS="l0, l1, l2"              # list of schemas to deploy
+AVAILABLE_SCHEMAS="postgres/core,postgres/merchant_template"              # list of schemas to deploy
 POSTGRES_HOST=database_host                 # DB Host on which deployment is to happen
 POSTGRES_DB=db_name                         # Name of the database on which deployment is to happen
 PORT=5432                                   # DB Port
